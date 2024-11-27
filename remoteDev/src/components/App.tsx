@@ -19,7 +19,6 @@ import { useJobItems } from '../hooks/useJobItems'
 function App() {
   const [inputValue, setInputValue] = useState<string>('')
   const [isFetching, jobItems] = useJobItems(inputValue)
-  ';asdsadasdasdasdssad'
 
 	return <>
   
