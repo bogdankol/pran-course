@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Background from './Background'
 import Container from './Container'
 import Footer from './Footer'
@@ -18,7 +18,7 @@ import { useJobItems } from '../hooks/useJobItems'
 
 function App() {
   const [inputValue, setInputValue] = useState<string>('')
-  const [isFetching, jobItems] = useJobItems(inputValue)
+  const {isFetching, jobItemsSliced, totalAmountOfItems} = useJobItems(inputValue)
 
 	return <>
   
@@ -47,14 +47,18 @@ function App() {
     <Container>
       <Sidebar>
         <SidebarTop>
-          <ResultsCount />
+          <ResultsCount 
+            {...{
+              totalAmountOfItems
+            }}
+          />
 
           <SortingControls />
         </SidebarTop>
 
         <JobList
           {...{
-            jobItems,
+            jobItems: jobItemsSliced,
             isFetching
           }}
         />
@@ -62,7 +66,7 @@ function App() {
         <PaginationControls />
       </Sidebar>
 
-			<JobItemContent />
+			<JobItemContent  />
     </Container>
 
     <Footer />

@@ -1,3 +1,4 @@
+import { useActiveItemId } from '../../hooks/useActiveItemId'
 import { IJobItem } from '../../types/interfaces'
 import JobListItem from '../JobListItem'
 import Spinner from '../Spinner'
@@ -7,20 +8,22 @@ interface IProps {
   isFetching: boolean
 }
 
-export function JobList({ 
+export default function JobList({ 
   jobItems,
   isFetching
 }: IProps) {
-  console.log({isFetching})
+  const activeId = useActiveItemId()
+
 	return <ul className='job-list'>
 
     {isFetching && <Spinner />}
     
     {!isFetching && jobItems?.map((el: IJobItem) => <JobListItem 
-      {...el}
+      {...{
+        jobItem: el,
+        isActive: el.id === activeId
+      }}
       key={el.id}
     />)}
   </ul>
 }
-
-export default JobList

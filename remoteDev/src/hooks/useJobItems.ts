@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { IJobItem } from '../types/interfaces'
+import { BASE_API_URL } from '../lib/constants'
 
 let timer: ReturnType<typeof setTimeout>
 const TIMEOUT = 600
@@ -7,6 +8,8 @@ const TIMEOUT = 600
 export function useJobItems(inputValue: string) {
   const [isFetching, setIsFetching] = useState<boolean>(false)
 	const [jobItems, setJobItems] = useState<IJobItem[]>([])
+
+  const totalAmountOfItems = jobItems.length
   const jobItemsSliced = jobItems.slice(0, 7)
 
 	useEffect(() => {
@@ -19,7 +22,7 @@ export function useJobItems(inputValue: string) {
 
 			try {
 				const res = await fetch(
-					`https://bytegrad.com/course-assets/projects/rmtdev/api/data?search=${inputValue}`,
+					`${BASE_API_URL}?search=${inputValue}`,
 				)
 				const { jobItems } = await res.json()
 
@@ -36,8 +39,9 @@ export function useJobItems(inputValue: string) {
 
 	}, [inputValue])
 
-  return [
+  return {
     isFetching,
-    jobItemsSliced
-  ] as const
+    jobItemsSliced,
+    totalAmountOfItems
+  } 
 }

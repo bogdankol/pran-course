@@ -1,16 +1,29 @@
 import BookmarkIcon from '../BookmarkIcon'
 import { IJobItem } from '../../types/interfaces'
+import { clsx } from 'clsx'
+
+interface IProps {
+  jobItem: IJobItem
+  isActive: boolean
+}
 
 export default function JobListItem({
-  badgeLetters,
-  company,
-  daysAgo,
-  relevanceScore,
-  title
-}: IJobItem) {
+  jobItem: {
+    badgeLetters,
+    company,
+    daysAgo,
+    relevanceScore,
+    title,
+    id
+  },
+  isActive
+}: IProps) {
 	return (
-		<li className='job-item'>
-			<a className='job-item__link'>
+		<li className={clsx(
+      'job-item', {
+        ['job-item--active']: isActive
+      })}>
+			<a className='job-item__link' href={`/#${id}`}>
 				<div className='job-item__badge'>{badgeLetters}</div>
 
 				<div className='job-item__middle'>
