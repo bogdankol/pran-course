@@ -53,7 +53,11 @@ export default function JobItemContent() {
 						<div className='job-info__below-badge'>
 							<time className='job-info__time'>{`${daysAgo}d`}</time>
 
-							<BookmarkIcon />
+							<BookmarkIcon 
+                {...{
+                  id: jobItemInfo.id
+                }}
+              />
 						</div>
 					</div>
 
@@ -87,8 +91,10 @@ export default function JobItemContent() {
 							</p>
 						</div>
 						<ul className='qualifications__list'>
-              {qualifications.map((el: string) => <li className='qualifications__item'>{el}</li>)}
-							
+              {qualifications.map((el: string) => <li 
+                key={el} 
+                className='qualifications__item'
+              >{el}</li>)}
 						</ul>
 					</section>
 
@@ -100,7 +106,10 @@ export default function JobItemContent() {
 							</p>
 						</div>
 						<ul className='reviews__list'>
-              {reviews.map((el: string) => <li className='reviews__item'>{el}</li>)}
+              {reviews.map((el: string) => <li 
+                className='reviews__item'
+                key={el}
+              >{el}</li>)}
 						</ul>
 					</section>
 				</div>
@@ -119,10 +128,10 @@ export default function JobItemContent() {
 
 function IsFetchingJobItem() {
   return <section className='job-details'>
-			<div>
-        <Spinner />
-      </div>
-    </section>
+    <div>
+      <Spinner />
+    </div>
+  </section>
 }
 
 function EmptyJobContent() {
