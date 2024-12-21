@@ -1,73 +1,49 @@
-import { useEffect, useState } from 'react'
-import { IJobItem } from '../types/interfaces'
-import { BASE_API_URL } from '../lib/constants'
-import { useQuery } from '@tanstack/react-query'
-import toast from 'react-hot-toast'
+import { useQueries, UseQueryResult } from '@tanstack/react-query';
+import { BASE_API_URL } from '../lib/constants';
 import toastError from '../utils/toastError'
+import { IJobItemById } from '../types/interfaces';
 
-// export function useJobItems(inputValue: string) {
-//   const [isFetching, setIsFetching] = useState<boolean>(false)
-// 	const [jobItems, setJobItems] = useState<IJobItem[]>([])
-
-
-// 	useEffect(() => {
-// 		if (!inputValue) return
-    
-// 		async function fetchItems() {
-//       setIsFetching(true)
-
-// 			try {
-// 				const res = await fetch(`${BASE_API_URL}?search=${inputValue}`)
-// 				const { jobItems } = await res?.json()
-
-//         setJobItems(jobItems)
-// 			} catch (error: unknown) {
-// 				const errorMessage =
-// 					error instanceof Error ? error.message : 'Something went wrong!'
-// 				throw new Error(`Error: ${errorMessage}`)
-// 			} finally {
-//         setIsFetching(false)
-//       }
-//     }
-
-//     fetchItems()
-
-// 	}, [inputValue])
-
-//   return {
-//     isFetching,
-//     jobItems
-//   } 
-// }
-
-async function fetchItems(inputValue: string): Promise<IJobItem[] | undefined> {
-  if(!inputValue) return
-
-  const res = await fetch(`${BASE_API_URL}?search=${inputValue}`)
-
-  if(!res.ok) {
-    const error = await res.json()
-    throw new Error(`ERROR!!!!!: ${error.description}`)
-  }
-  const { jobItems } = await res?.json()
-  return jobItems
+interface IJobItemByIdResponse {
+  jobItem: IJobItemById,
 }
 
-export function useJobItems(inputValue: string) {
-  const {data, isInitialLoading} = useQuery(
-    ['job-items', inputValue],
-    () => fetchItems(inputValue),
-    {
+export function useJobItems(ids: number[]) {
+  const results = useQueries({
+    queries: ids.map(id => ({
+      queryKey: ['job-item', id],
+      queryFn: () => fetchOneItem(id),
       staleTime: 1000 * 60 * 5,
       refetchOnWindowFocus: false,
       retry: false,
-      enabled: !!inputValue,
+      enabled: !!id,
       onError: (error: unknown) => toastError(error)
-    }
-  )
+    }))
+  })
+
+  const jobItems = results
+    ?.map((item: UseQueryResult<IJobItemByIdResponse | null, unknown>) => item.data?.jobItem)
+    .filter(el => !!el)
+  const isLoading = results
+    // .some((item: UseQueryResult<IJobItemByIdResponse | null, unknown>) => item.status === 'loading')
+    .some((item: UseQueryResult<IJobItemByIdResponse | null, unknown>) => item.isLoading)
 
   return {
-    jobItems: data || [],
-    isFetching: isInitialLoading
+    jobItems,
+    isFetching: isLoading
   }
+
+}
+
+async function fetchOneItem(activeId: number | null): Promise<IJobItemByIdResponse | null> {
+  if(!activeId) return null
+
+  const queryString = `${BASE_API_URL}/${activeId}`
+  const res = await fetch(queryString)
+
+  if(!res.ok) {
+    const error = await res.json()
+    throw new Error(`Error: ${error.message}`)
+  }
+  const data = await res.json()
+  return data
 }

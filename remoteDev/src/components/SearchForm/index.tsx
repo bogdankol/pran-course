@@ -1,12 +1,11 @@
-interface IProps {
-  inputValue: string,
-  setInputValue: React.Dispatch<React.SetStateAction<string>>
-}
+import { useSearchTextContext } from '../../hooks/useSearchTextContext'
 
-export default function SearchForm({
-  inputValue,
-  setInputValue
-}: IProps) {
+export default function SearchForm() {
+
+  const {
+    debouncedInputValue,
+    handleChangeSearchText
+  } = useSearchTextContext()
 	return (
 		<form
 			action='#'
@@ -22,9 +21,9 @@ export default function SearchForm({
 				required
 				placeholder='Find remote developer jobs...'
 				onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-					setInputValue(e.target.value)
+					handleChangeSearchText(e.target.value)
 				}
-				value={inputValue}
+				value={debouncedInputValue}
 			/>
 		</form>
 	)

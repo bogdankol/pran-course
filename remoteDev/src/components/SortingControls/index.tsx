@@ -1,15 +1,14 @@
 import { clsx } from 'clsx'
 import { TSortBy } from '../../types/types'
+import { useJobItemsContext } from '../../hooks/useJobItemsContext'
 
-interface IProps {
-	onClick: (s: TSortBy) => void
-	sortBy: TSortBy
-}
+export default function SortingControls() {
 
-export default function SortingControls({
-	onClick,
-	sortBy,
-}: IProps) {
+  const {
+    sortBy,
+    handleChangeSortBy
+  } = useJobItemsContext()
+
 	return (
 		<section className='sorting'>
 			<i className='fa-solid fa-arrow-down-short-wide'></i>
@@ -18,7 +17,7 @@ export default function SortingControls({
         {...{
           sortBy,
           text: 'Relevant',
-          onClick,
+          onClick: () => handleChangeSortBy('relevant'),
           isActive: sortBy === 'relevant'
         }}
       />
@@ -27,7 +26,7 @@ export default function SortingControls({
         {...{
           sortBy,
           text: 'Recent',
-          onClick,
+          onClick: () => handleChangeSortBy('recent'),
           isActive: sortBy === 'recent'
         }}
       />
@@ -43,12 +42,12 @@ function SortingButton({
 }: {
   sortBy: TSortBy
   text: string
-  onClick: (s: TSortBy) => void,
+  onClick: () => void,
   isActive: boolean
 }) {
   return <button
   className={clsx(`sorting__button sorting__button--${sortBy}`, `${isActive ? 'sorting__button--active' : ''}`)}
-  onClick={() => onClick('relevant')}
+  onClick={() => onClick()}
 >
   {text}
 </button>

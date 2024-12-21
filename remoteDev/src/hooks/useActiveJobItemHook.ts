@@ -56,7 +56,7 @@ export function useActiveJobItemHook() {
   const activeId = useActiveItemId()
 
   const {data, isLoading, isInitialLoading} = useQuery(
-    ['item', activeId],
+    ['job-item', activeId],
     () => fetchOneItem(activeId),
     {
       staleTime: 1000 * 60 * 5,

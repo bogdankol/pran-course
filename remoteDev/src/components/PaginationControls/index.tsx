@@ -1,22 +1,22 @@
 import { ArrowLeftIcon, ArrowRightIcon } from '@radix-ui/react-icons'
 import { clsx } from 'clsx'
 import { TDirection } from '../../types/types'
+import { useJobItemsContext } from '../../hooks/useJobItemsContext'
 
-export default function PaginationControls({
-	onClick,
-	currentPage,
-  totalNumberOfPages
-}: {
-	onClick: (direction: TDirection, e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
-	currentPage: number
-  totalNumberOfPages: number
-}) {
+export default function PaginationControls() {
+
+  const {
+    currentPage,
+    handlePageChange,
+    totalNumberOfPages
+  } = useJobItemsContext()
+    
 	return <section className='pagination'>
     {currentPage > 1 && <PaginationButton
       {...{
         direction: 'prev',
         currentPage,
-        onClick,
+        onClick: handlePageChange,
       }}
     />}
 
@@ -26,7 +26,7 @@ export default function PaginationControls({
         {...{
           direction: 'next',
           currentPage,
-          onClick,
+          onClick: handlePageChange,
         }}
       />
     }
