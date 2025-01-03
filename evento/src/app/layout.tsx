@@ -10,7 +10,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
 	title: 'Evento - Find events around you',
 	description: 'Browse more than 10,000 events around you',
-  
 }
 
 export default function RootLayout({

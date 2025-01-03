@@ -1,6 +1,22 @@
 import EventsList from '@/components/EventsList'
 import H1 from '@/components/H1'
-import type { TEvent } from 'lib/types'
+import { capitalize } from 'lib/utils'
+import { Metadata } from 'next'
+import { Suspense } from 'react'
+
+export function generateMetadata({
+  params: {
+    city
+  }
+}: {
+  params: {
+    city: string
+  }
+}): Metadata {
+  return {
+    title: city === 'all' ? 'All events' : `Events in ${capitalize(city)}`,
+  }
+}
 
 export default async function EventPage({
   params: {
@@ -12,9 +28,6 @@ export default async function EventPage({
   }
 }) {
 
-  const res = await fetch(`https://bytegrad.com/course-assets/projects/evento/api/events?city=${city}`)
-  const events: TEvent[] = await res.json()
-
 	return (
 		<main className='flex flex-col items-center py-24 px-[20px] min-h-[110vh]'>
 			<H1 className='mb-28'>
@@ -24,11 +37,13 @@ export default async function EventPage({
         }
       </H1>
 
-      {events && <EventsList 
-        {...{
-          events
-        }}
-      />}
+      {/* <Suspense fallback={<div>Loading...</div>}> */}
+        <EventsList 
+          {...{
+            city
+          }}
+        />
+      {/* </Suspense> */}
 		</main>
 	)
 }

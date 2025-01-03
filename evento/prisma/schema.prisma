@@ -1,0 +1,29 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// create a type called EventEvent which is the same as TEvent in the typescript file
+model EventEvent {
+  id            Int      @id @default(autoincrement())
+  name          String
+  slug          String   @unique
+  city          String
+  location      String
+  date          DateTime
+  organizerName String
+  imageUrl      String
+  description   String
+  createdAd     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// to see the insides of prisma db run --> npx prisma studio
+// but data is empty because we have not added any data yet, so we need to seed some data

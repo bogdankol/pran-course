@@ -1,18 +1,46 @@
+'use client'
 import { TEvent } from 'lib/types'
 import Image from 'next/image'
 import Link from 'next/link'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { useRef } from 'react'
 
+const MotionItem = motion.li
+const MotionLink = motion(Link)
 
 export default function EventListItem({
   event
 }: {
   event: TEvent
 }) {
-  return <li 
+
+  const ref = useRef(null)
+  
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: [`0 1`, `1.4 1.5`]
+  })
+
+  const scaleProgress = useTransform(scrollYProgress, [0, 1], [0.8, 1])
+  const opacityProgress = useTransform(scrollYProgress, [0, 1], [0.3, 1])
+
+  return <MotionItem 
     key={event.id}
     className='relative flex flex-col flex-1 basis-80 h-[380px] max-w-[500px] bg-white/[3%] rounded-xl overflow-hidden state-effects'
+    ref={ref}
+    style={{
+      scale: scaleProgress,
+      opacity: opacityProgress
+    }}
+    initial={{
+      opacity: 1,
+      scale: 0.9
+    }}
   >
-    <Link href={`/event/${event.slug}`} className='w-full h-full flex flex-col'>
+    <Link 
+      href={`/event/${event.slug}`} 
+      className='w-full h-full flex flex-col'
+    >
     
       <Image 
         src={event.imageUrl}
@@ -43,5 +71,5 @@ export default function EventListItem({
       </span>
     </Link>
   
-  </li>
+  </MotionItem>
 }
