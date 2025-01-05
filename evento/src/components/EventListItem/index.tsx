@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 
+
 const MotionItem = motion.li
-const MotionLink = motion(Link)
+// const MotionLink = motion(Link)
 
 export default function EventListItem({
   event
@@ -21,7 +22,7 @@ export default function EventListItem({
     offset: [`0 1`, `1.4 1.5`]
   })
 
-  const scaleProgress = useTransform(scrollYProgress, [0, 1], [0.8, 1])
+  const scaleProgress = useTransform(scrollYProgress, [0, 1], [1, 1])
   const opacityProgress = useTransform(scrollYProgress, [0, 1], [0.3, 1])
 
   return <MotionItem 

@@ -1,22 +1,41 @@
 // import { TEvent } from 'lib/types'
 import { EventEvent as TEvent } from '@prisma/client'
 import EventListItem from '@/components/EventListItem'
-import { getEvents } from 'lib/utils'
+import { getEvents } from 'lib/server-utils'
+import PaginationControls from '@/components/PaginationControls'
 
 export default async function EventsList({
-  city
+  city,
+  page = 1
 }: {
-  city: string
+  city: string,
+  page?: number
 }) {
-  const events = await getEvents(city)
+  const {
+    events,
+    totalCount
+  } = await getEvents(city, page)
+  const previousPath = page > 1 ? `/events/${city}?page=${page - 1}` : ''
+  const nextPath = totalCount > (page * 6) ? `/events/${city}?page=${page + 1}` : ''
   
-  return (
-    <ul className='flex flex-wrap gap-10 justify-center max-w-[1100px] px-[20px] '>
+  return events && <section className='flex flex-col items-center gap-10 px-[20px] max-w-[1100px]'>
+
+    <ul className='flex flex-wrap gap-10 justify-center w-full'>
       {events.map((event: TEvent) => <EventListItem 
         {...{
           event
         }}
+        key={event.id}
       />)}
     </ul>
-  )
+
+    <PaginationControls 
+      {...{
+        previousPath,
+        nextPath
+      }}
+    />
+
+  </section>
+    
 }

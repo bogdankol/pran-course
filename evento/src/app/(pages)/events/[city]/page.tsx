@@ -3,6 +3,8 @@ import H1 from '@/components/H1'
 import { capitalize } from 'lib/utils'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
+import Loading from './loading'
+import { z } from 'zod'
 
 export function generateMetadata({
   params: {
@@ -18,15 +20,27 @@ export function generateMetadata({
   }
 }
 
+const pageNumberSchema = z.coerce.number().int().positive().optional()
+
 export default async function EventPage({
   params: {
     city
-  }
+  },
+  searchParams
 }: {
   params: {
     city: string
+  },
+  searchParams: {
+    page: string | undefined
   }
 }) {
+
+  // const page = searchParams.page ? +searchParams.page : 1
+  const parsedPage = pageNumberSchema.safeParse(searchParams.page)
+  if(!parsedPage.success) {
+    throw new Error('Invalid page number')
+  }
 
 	return (
 		<main className='flex flex-col items-center py-24 px-[20px] min-h-[110vh]'>
@@ -37,13 +51,14 @@ export default async function EventPage({
         }
       </H1>
 
-      {/* <Suspense fallback={<div>Loading...</div>}> */}
+      <Suspense key={parsedPage.data+city} fallback={<Loading/>}>
         <EventsList 
           {...{
-            city
+            city,
+            page: parsedPage.data
           }}
         />
-      {/* </Suspense> */}
+      </Suspense>
 		</main>
 	)
 }
