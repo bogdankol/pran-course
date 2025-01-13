@@ -5,7 +5,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Container from '@/components/Container'
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
 	title: 'Evento - Find events around you',
@@ -17,7 +17,8 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode
 }>) {
-	return (
+
+  return (
 		<html lang='en'>
 			<body
 				className={`${inter.className} bg-gray-950 text-white overflow-y-scroll`}

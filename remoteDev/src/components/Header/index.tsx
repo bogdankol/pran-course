@@ -7,6 +7,7 @@ interface IProps {
 export default function Header({
   children
 }: IProps) {
+
 	return (
 		<header className='header'>
       {children}
