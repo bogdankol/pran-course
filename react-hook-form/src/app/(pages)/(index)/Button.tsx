@@ -1,7 +1,8 @@
 import React from 'react'
 
-export default function Button({i}: {i: number}) {
+export default function button({i}: {i?: number}) {
+  console.log('I am rerendered!')
   return (
-    <p>{i}</p>
+    <p>{i || 123321}</p>
   )
 }

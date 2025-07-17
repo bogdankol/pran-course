@@ -101,6 +101,11 @@ export default function Content() {
   //   console.log({i})
   // }, [i])
 
+  // function logFunc() {
+  //   const v = w + 10
+  //   console.log({v, w})
+  // }
+
 	return (
 		<form
 			onSubmit={handleSubmit(onSubmit)}
@@ -109,11 +114,11 @@ export default function Content() {
 
       {/* <button type={'button'} onClick={() => {
         // setI(i+1)
-        console.log(w)
+        logFunc()
         w += 1
         }}>+1</button>
       <Button {...{
-        i: i
+        // i: w
       }}/> */}
 
 			{/* <input 
