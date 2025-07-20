@@ -18,26 +18,13 @@ const config = {
       },
     },
     extend: {
-      keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-      },
       colors: {
         bg1: `#E5E8EC`,
         bg2: `#5DC9A8`,
         bg3: `#2c9676`,
 				bg4: `#f7f8fa`,
-				color1: `#eff1f2`
+				color1: `#eff1f2`,
+        black1: `rgba(0, 0, 0, 0.08)`
       }
     },
   },

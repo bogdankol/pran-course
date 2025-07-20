@@ -1,37 +1,43 @@
+'use client'
+import { usePetContext, useSearchContext } from '@/hooks/hooks'
+import { TPet } from '@/lib/types'
 import Image from 'next/image'
+import { cn } from '@/lib/utils'
+import { useMemo } from 'react'
 
 export default function PetList() {
-	return (
-		<ul className='bg-white border-b border-black/[0.08]'>
-			<li>
-				<button className='flex h-[70px] w-full cursor-pointer items-center px-5 text-base gap-3 hover:bg-color1 focus:bg-color1 transition'>
-					<Image 
-						src='https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png'
-						alt='Pet image'
-						title="Pet image"
-						width={45}
-						height={45}
-						className='rounded-full object-cover'
-					/>
+  const { pets, updateSelectedPetId, selectedPetId } = usePetContext()
+  const { searchQuery } = useSearchContext()
 
-					<p className='font-semibold'>Benjamin</p>
-				</button>
-			</li>
+  const filteredPets = useMemo(
+    () => pets.filter(pet => pet.name.toLowerCase().includes(searchQuery.toLowerCase())),
+    [pets, searchQuery]
+  )
 
-			<li>
-				<button className='flex h-[70px] w-full cursor-pointer items-center px-5 text-base gap-3 hover:bg-color1 focus:bg-color1 transition'>
-					<Image 
-						src='https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png'
-						alt='Pet image'
-						title="Pet image"
-						width={45}
-						height={45}
-						className='rounded-full object-cover'
-					/>
+  return (
+    <ul className="bg-white border-b border-black/[0.08]">
+      {filteredPets.map((pet: TPet) => (
+        <li key={pet.id}>
+          <button
+            onClick={() => updateSelectedPetId(pet.id)}
+            className={cn(
+              'flex h-[70px] w-full cursor-pointer items-center px-5 text-base gap-3 hover:bg-color1 focus:bg-color1 transition',
+              { 'bg-color1': selectedPetId === pet.id }
+            )}
+          >
+            <Image
+              src={pet.imageUrl}
+              alt={pet.name}
+              title={pet.name}
+              width={45}
+              height={45}
+              className="w-[45px] h-[45px] rounded-full object-cover"
+            />
 
-					<p className='font-semibold'>Benjamin 2</p>
-				</button>
-			</li>
-		</ul>
-	)
+            <p className="font-semibold">{pet.name}</p>
+          </button>
+        </li>
+      ))}
+    </ul>
+  )
 }
