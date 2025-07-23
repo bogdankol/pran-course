@@ -1,8 +1,10 @@
 'use client'
 import { usePetContext } from '@/hooks/hooks'
 import { TPet } from '@/lib/types'
+import { checkoutPet } from '@/serverActions/actions'
 import PetButton from 'components/PetButton'
 import Image from 'next/image'
+import { useTransition } from 'react'
 
 export default function PetDetails() {
   const { selectedPetData } = usePetContext()
@@ -29,7 +31,9 @@ function EmptyView() {
 }
 
 function TopBar({ petData }: { petData: TPet }) {
-  const { handleCheckoutPet } = usePetContext()
+  // const { handleCheckoutPet } = usePetContext()
+  const [isPending, startTransitionFunc] = useTransition() // to catch pending status outside of form
+  console.log({isPending, startTransitionFunc})
 
   return (
     <div className="flex items-center bg-white px-8 py-5 border-b border-black1">
@@ -45,7 +49,16 @@ function TopBar({ petData }: { petData: TPet }) {
 
       <div className='ml-auto space-x-2'>
         <PetButton actionType='edit'>Edit</PetButton>
-        <PetButton actionType='checkout' onClick={() => handleCheckoutPet(petData.id)}>Checkout</PetButton>
+        <PetButton 
+          actionType='checkout' 
+          disabled={isPending}
+          // onClick={() => handleCheckoutPet(petData.id)}
+          onClick={async () => {
+            startTransitionFunc(async () => {
+              await checkoutPet(petData.id)
+            })
+          }}
+        >Checkout</PetButton>
       </div>
     </div>
   )
