@@ -31,9 +31,9 @@ function EmptyView() {
 }
 
 function TopBar({ petData }: { petData: TPet }) {
-  // const { handleCheckoutPet } = usePetContext()
-  const [isPending, startTransitionFunc] = useTransition() // to catch pending status outside of form
-  console.log({isPending, startTransitionFunc})
+  const { handleCheckoutPet } = usePetContext()
+  // const [isPending, startTransitionFunc] = useTransition() // to catch pending status outside of form
+  // console.log({isPending, startTransitionFunc})
 
   return (
     <div className="flex items-center bg-white px-8 py-5 border-b border-black1">
@@ -51,13 +51,9 @@ function TopBar({ petData }: { petData: TPet }) {
         <PetButton actionType='edit'>Edit</PetButton>
         <PetButton 
           actionType='checkout' 
-          disabled={isPending}
+          // disabled={isPending}
           // onClick={() => handleCheckoutPet(petData.id)}
-          onClick={async () => {
-            startTransitionFunc(async () => {
-              await checkoutPet(petData.id)
-            })
-          }}
+          onClick={async () => await handleCheckoutPet(petData.id)}
         >Checkout</PetButton>
       </div>
     </div>

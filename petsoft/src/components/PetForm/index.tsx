@@ -3,9 +3,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { usePetContext } from '@/hooks/hooks'
-import { addPet, editPet } from '@/serverActions/actions'
+import { TPet } from '@/lib/types'
 import PetFormBtn from 'components/PetFormBtn'
-import { toast } from 'sonner'
 
 export default function PetForm({
   actionType,
@@ -14,15 +13,11 @@ export default function PetForm({
   actionType: 'add' | 'edit'
   onFormSubmission: () => void
 }) {
-  const { 
-    // handleAddPet, 
-    selectedPetData, 
-    // handleEditPet 
-  } = usePetContext()
+  const { handleAddPet, selectedPetData, handleEditPet } = usePetContext()
 
   // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
   //   e.preventDefault()
-    
+
   //   const formData = new FormData(e.currentTarget)
   //   const pet = Object.fromEntries(formData.entries())
 
@@ -45,25 +40,29 @@ export default function PetForm({
   // }
 
   return (
-    <form 
-      className="flex flex-col " 
+    <form
+      className="flex flex-col "
       // onSubmit={handleSubmit}
-      action={async formData => {
-        let error
-
-        if(actionType === 'add') {
-          error = await addPet(formData)
-        } else {
-          if(!selectedPetData) return
-          error = await editPet(selectedPetData?.id, formData)
-        }
-
-        if(error) {
-          toast.error(error.message)
-          return
-        }
-
+      action={async (formData) => {
         onFormSubmission()
+
+        const newPet = Object.fromEntries(formData.entries())
+        const newPetData: TPet = {
+          id: selectedPetData?.id || String(Date.now()),
+          ...newPet,
+          age: Number(newPet.age),
+          imageUrl:
+            newPet.imageUrl ||
+            'https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png',
+        } as TPet
+
+        if (actionType === 'add') {
+          await handleAddPet(newPetData)
+        } else if (selectedPetData) {
+          await handleEditPet(selectedPetData.id, newPetData)
+        }
+
+        // onFormSubmission() // that works without useOptimistic hook, only server actions of useContext
       }}
     >
       <div className="space-y-3">
@@ -128,7 +127,7 @@ export default function PetForm({
 
       <PetFormBtn
         {...{
-          actionType
+          actionType,
         }}
       />
     </form>
