@@ -1,6 +1,7 @@
 'use server'
 
-import { TPet } from '@/lib/types'
+// import { TPet } from '@/lib/types'
+import { Pet as TPet } from '@prisma/client'
 import prisma from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { sleep } from '@/lib/utils'

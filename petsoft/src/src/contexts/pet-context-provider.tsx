@@ -1,5 +1,6 @@
 'use client'
-import { TPet } from '@/lib/types'
+// import { TPet } from '@/lib/types'
+import { Pet as TPet } from '@prisma/client'
 import { addPet, checkoutPet, editPet } from '@/serverActions/actions'
 // import { addPet } from '@/serverActions/actions'
 import {

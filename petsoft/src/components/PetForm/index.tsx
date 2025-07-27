@@ -3,7 +3,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { usePetContext } from '@/hooks/hooks'
-import { TPet } from '@/lib/types'
+// import { TPet } from '@/lib/types'
+import { Pet as TPet } from '@prisma/client'
 import PetFormBtn from 'components/PetFormBtn'
 
 export default function PetForm({

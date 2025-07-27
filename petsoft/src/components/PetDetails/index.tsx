@@ -1,6 +1,7 @@
 'use client'
 import { usePetContext } from '@/hooks/hooks'
-import { TPet } from '@/lib/types'
+// import { TPet } from '@/lib/types'
+import { Pet as TPet } from '@prisma/client'
 import { checkoutPet } from '@/serverActions/actions'
 import PetButton from 'components/PetButton'
 import Image from 'next/image'
