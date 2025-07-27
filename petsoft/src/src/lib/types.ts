@@ -7,4 +7,6 @@
 //   notes: string
 // }
 
-import { Pet as TPet } from '@prisma/client'
+import { Pet } from '@prisma/client'
+
+export type TPet = Omit<Pet, "createdAt" | 'updatedAt'>

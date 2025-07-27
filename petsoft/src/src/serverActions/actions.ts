@@ -1,7 +1,7 @@
 'use server'
 
-// import { TPet } from '@/lib/types'
-import { Pet as TPet } from '@prisma/client'
+import { TPet } from '@/lib/types'
+// import { Pet as TPet } from '@prisma/client'
 import prisma from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { sleep } from '@/lib/utils'
@@ -22,7 +22,7 @@ export async function addPet(newPetData: TPet) {
   }
 }
 
-export async function editPet(petId: string, newPetData: TPet) {
+export async function editPet(petId: TPet['id'], newPetData: TPet) {
   await sleep(1000)
 
   try {
@@ -41,7 +41,7 @@ export async function editPet(petId: string, newPetData: TPet) {
   }
 }
 
-export async function checkoutPet(petId: string) {
+export async function checkoutPet(petId:  TPet['id']) {
   await sleep(1000)
 
   try {

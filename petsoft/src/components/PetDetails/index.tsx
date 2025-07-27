@@ -1,11 +1,11 @@
 'use client'
 import { usePetContext } from '@/hooks/hooks'
-// import { TPet } from '@/lib/types'
-import { Pet as TPet } from '@prisma/client'
-import { checkoutPet } from '@/serverActions/actions'
+import { TPet } from '@/lib/types'
+// import { Pet as TPet } from '@prisma/client'
+// import { checkoutPet } from '@/serverActions/actions'
 import PetButton from 'components/PetButton'
 import Image from 'next/image'
-import { useTransition } from 'react'
+// import { useTransition } from 'react'
 
 export default function PetDetails() {
   const { selectedPetData } = usePetContext()

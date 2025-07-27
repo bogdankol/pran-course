@@ -1,6 +1,6 @@
 'use client'
-// import { TPet } from '@/lib/types'
-import { Pet as TPet } from '@prisma/client'
+import { TPet } from '@/lib/types'
+// import { Pet as TPet } from '@prisma/client'
 import { addPet, checkoutPet, editPet } from '@/serverActions/actions'
 // import { addPet } from '@/serverActions/actions'
 import {
@@ -14,8 +14,8 @@ import { toast } from 'sonner'
 
 type TPetContext = {
   pets: TPet[]
-  selectedPetId: string | null
-  updateSelectedPetId: (id: string) => void
+  selectedPetId:  TPet['id'] | null
+  updateSelectedPetId: (id:  TPet['id']) => void
   selectedPetData: TPet | null
   numberOfPets: number
   handleCheckoutPet: (id: string) => Promise<void>
@@ -108,7 +108,7 @@ export default function PetContextProvider({
     }
   }
 
-  const handleEditPet = async (petId: string, newPetData: TPet) => {
+  const handleEditPet = async (petId:  TPet['id'], newPetData: TPet) => {
     // setPets(prev => prev.map(pet => {
     //   if(id === pet.id) return {
     //     ...pet,

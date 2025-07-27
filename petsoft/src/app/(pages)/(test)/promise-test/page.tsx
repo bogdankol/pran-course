@@ -1,6 +1,6 @@
 'use client'; // required for client-side effects
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export default function DelayedFetchDemo() {
 
