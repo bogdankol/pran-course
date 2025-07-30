@@ -9,23 +9,8 @@ import PetFormBtn from 'components/PetFormBtn'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-
-const PetFormSchema = z.object({
-  name: z.string().trim().min(3, { error: 'Name is required!AAA'}).max(100),
-  ownerName: z.string().trim().min(3, { error: 'ownerName is requiredAAAA!'}).max(100),
-  imageUrl: z.union([
-    z.literal(``),
-    z.string().trim().url({ message: 'imageUrl should be validAAAAA'})
-  ]),
-  age: z.coerce.number().int().positive().max(100),
-  notes: z.union([
-    z.literal(``),
-    z.string().trim().max(1010)
-  ]),
-}).transform(data => ({
-  ...data,
-  imageUrl: data.imageUrl || 'https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png'
-}))
+import { defaultImageUrl } from '@/lib/constants'
+import { PetFormSchema } from '@/lib/validations'
 
 type TPetForm = z.infer<typeof PetFormSchema>
 
@@ -46,7 +31,14 @@ export default function PetForm({
     trigger,
     getValues
   } = useForm<TPetForm>({
-    resolver: zodResolver(PetFormSchema)
+    resolver: zodResolver(PetFormSchema),
+    defaultValues: {
+      name: selectedPetData?.name,
+      ownerName: selectedPetData?.ownerName,
+      age: selectedPetData?.age,
+      notes: selectedPetData?.notes,
+      imageUrl: selectedPetData?.imageUrl
+    }
   })
 
   // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -98,7 +90,7 @@ export default function PetForm({
     <form
       className="flex flex-col "
       // onSubmit={handleSubmit}
-      action={async (formData) => {
+      action={async () => {
         const result = await trigger() // form fields validation, returns boolean
         if(!result) return
 
@@ -109,10 +101,10 @@ export default function PetForm({
         const newPetData: TPet = {
           ...newPet,
           id: selectedPetData?.id || String(Date.now()),
-          age: Number(newPet.age),
+          age: newPet.age,
           imageUrl:
-            newPet.imageUrl ||
-            'https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png',
+            newPet.imageUrl 
+              || defaultImageUrl,
         } as TPet
 
         if (actionType === 'add') {
@@ -130,14 +122,15 @@ export default function PetForm({
           <Input
             id="name"
             {...register('name', {
-              required: 'Name is required!',
-              minLength: {
-                value: 3,
-                message: 'Name should be at least 3 symbols'
-              }
+              // required: 'Name is required!',
+              // minLength: {
+              //   value: 3,
+              //   message: 'Name should be at least 3 symbols'
+              // },
+              // defaultValue: 
             })}
           />
-          {errors.name && <p className='text-red-500'>{errors.name.message}</p>}
+          {errors.name && <p className='text-yellow-500'>{errors.name.message}</p>}
         </div>
 
         <div className="space-y-1">
@@ -145,11 +138,11 @@ export default function PetForm({
           <Input
             id="ownerName"
             {...register('ownerName', {
-              required: 'Name is required!',
-              maxLength: {
-                value: 30,
-                message: 'Owner name should be max of 30 symbols'
-              }
+              // required: 'Name is required!',
+              // maxLength: {
+              //   value: 30,
+              //   message: 'Owner name should be max of 30 symbols'
+              // }
             })}
           />
           {errors.ownerName && <p className='text-red-500'>{errors.ownerName.message}</p>}
