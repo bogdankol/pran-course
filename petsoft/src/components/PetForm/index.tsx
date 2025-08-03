@@ -32,13 +32,13 @@ export default function PetForm({
     getValues
   } = useForm<TPetForm>({
     resolver: zodResolver(PetFormSchema),
-    defaultValues: {
+    defaultValues: actionType === 'edit' ? {
       name: selectedPetData?.name,
       ownerName: selectedPetData?.ownerName,
       age: selectedPetData?.age,
       notes: selectedPetData?.notes,
       imageUrl: selectedPetData?.imageUrl
-    }
+    } : undefined
   })
 
   // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

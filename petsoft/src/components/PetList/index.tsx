@@ -3,7 +3,7 @@ import { usePetContext, useSearchContext } from '@/hooks/hooks'
 import { TPet } from '@/lib/types'
 // import { Pet as TPet } from '@prisma/client'
 import Image from 'next/image'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/client-utils'
 import { useMemo } from 'react'
 
 export default function PetList() {
@@ -11,7 +11,10 @@ export default function PetList() {
   const { searchQuery } = useSearchContext()
 
   const filteredPets = useMemo(
-    () => pets.filter(pet => pet.name.toLowerCase().includes(searchQuery.toLowerCase())),
+    () =>
+      pets.filter((pet) =>
+        pet.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
     [pets, searchQuery]
   )
 
