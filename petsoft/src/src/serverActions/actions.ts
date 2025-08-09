@@ -133,7 +133,7 @@ export async function signOutFunc() {
   await signOut({ redirectTo: '/' })
 }
 
-export async function login(prevState: unknown, authData: unknown) {
+export async function login(_: unknown, authData: unknown) {
   if(!(authData instanceof FormData)) return {
     message: 'Invalid form data'
   }

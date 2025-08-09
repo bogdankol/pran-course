@@ -5,9 +5,15 @@ import { createCheckoutSession, refreshUserSession } from '@/serverActions/actio
 import GiveAccessBtn from 'components/GiveAccessBtn'
 import H1 from 'components/H1'
 import { useSearchParams } from 'next/navigation'
-import { useTransition } from 'react'
+import { useTransition, Suspense } from 'react'
 
 export default function PaymentPage() {
+  return <Suspense>
+    <PaymentPageContent />
+  </Suspense>
+}
+
+function PaymentPageContent() {
   const searchParams = useSearchParams()
   const success = searchParams.get('success')
   const canceled = searchParams.get('canceled') !== null

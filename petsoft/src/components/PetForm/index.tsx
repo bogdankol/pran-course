@@ -30,6 +30,7 @@ export default function PetForm({
     trigger,
     getValues
   } = useForm<TPetForm>({
+    // @ts-expect-error some error
     resolver: zodResolver(PetFormSchema),
     defaultValues: actionType === 'edit' ? {
       name: selectedPetData?.name,

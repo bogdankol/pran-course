@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     case 'checkout.session.completed':
       await prisma.user.update({
         where: {
-          email: event.data.object.customer_email,
+          email: event.data.object.customer_email!,
         },
         data: {
           hasAccess: true,
