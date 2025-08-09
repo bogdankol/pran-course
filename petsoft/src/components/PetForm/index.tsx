@@ -10,9 +10,8 @@ import { useForm } from 'react-hook-form'
 import z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { defaultImageUrl } from '@/lib/constants'
-import { PetFormSchema } from '@/lib/validations'
+import { PetFormSchema, TPetForm } from '@/lib/validations'
 
-type TPetForm = z.infer<typeof PetFormSchema>
 
 export default function PetForm({
   actionType,
@@ -105,7 +104,7 @@ export default function PetForm({
           imageUrl:
             newPet.imageUrl 
               || defaultImageUrl,
-        } as TPet
+        }
 
         if (actionType === 'add') {
           await handleAddPet(newPetData)

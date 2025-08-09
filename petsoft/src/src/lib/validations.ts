@@ -20,3 +20,12 @@ export const PetFormSchema = z.object({          // errors work both with onSubm
   }))
 
 export const petIdSchema = z.string()
+
+export type TPetForm = z.infer<typeof PetFormSchema>
+
+export const AuthSchema = z.object({          // errors work both with onSubmit and action, but coerce and transform don't
+  email: z.string().email().max(100),
+  password: z.string().max(100)
+})
+
+export type TAuth = z.infer<typeof AuthSchema>

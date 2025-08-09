@@ -1,38 +1,131 @@
 'use server'
 
-import { TPet } from '@/lib/types'
+// import { TPet } from '@/lib/types'
 // import { Pet as TPet } from '@prisma/client'
 import prisma from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { sleep } from '@/lib/client-utils'
-import { PetFormSchema, petIdSchema } from '@/lib/validations'
-import { signIn } from '@/lib/auth'
+import { PetFormSchema, petIdSchema, TAuth, AuthSchema } from '@/lib/validations'
+import { auth, signIn, update } from '@/lib/auth'
 import { signOut } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
-import { auth } from '@/lib/auth'
+// import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { checkAuth, getPetById } from '@/lib/server-utils'
+import { Prisma } from '@prisma/client'
+import { AuthError } from 'next-auth'
+import Stripe from 'stripe' 
+
+// payment actions
+export async function createCheckoutSession() {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2025-07-30.basil', // explicitly set version
+  })
+  const session = await checkAuth()
+
+  console.log('I AM createCheckoutSession')
+
+  try {
+    const checkoutSession = await stripe.checkout.sessions.create({
+      // @ts-expect-error some issue with typescript but data is valid
+      customer_email: session.user.email,
+      line_items: [
+        {
+          price: process.env.STRIPE_PRICE_ID,
+          quantity: 1
+        }
+      ],
+      mode: 'payment',
+      success_url: `${process.env.BASE_URL}/payment?success=true`,
+      cancel_url: `${process.env.BASE_URL}/payment?canceled=false`
+    })
+    // console.log({checkoutSession, stripe})
+
+    if (checkoutSession?.url) {
+      // redirection to stripe checkout page
+      redirect(checkoutSession?.url)
+    }
+
+
+  } catch(err: unknown) {
+    console.log('ERROR in obtaining stripe session:', {err})
+    throw err
+  }
+  
+}
+
+export async function refreshUserSession() {
+  const session = await auth()
+  if (!session) return
+
+  // Это вызовет `trigger: 'update'` в `jwt` и `session` callbacks
+  await update({
+    user: {
+      hasAccess: session.user.hasAccess, // можно передать что-то, но не обязательно
+    },
+  })
+}
 
 // user actions
-export async function signUp(authData: FormData) {
+export async function signUp(prevState: unknown, authData: unknown) {
+  console.log({prevState})
+
+  if(!(authData instanceof FormData)) return {
+    message: 'Invalid form data'
+  }
+
   const data = Object.fromEntries(authData.entries())
-  const hashedPassword = await bcrypt.hash(String(data.password), 10)
+
+  const validatedData = AuthSchema.safeParse(data)
+  if(!validatedData.success) return {
+    message: 'Invalid data signup'
+  }
+
+  const hashedPassword = await bcrypt.hash(String(validatedData.data.password), 10)
 
   try {
     await prisma.user.create({
       data: {
-        email: String(data.email),
+        email: validatedData.data.email,
         hashedPassword,
       },
     })
   } catch (err: unknown) {
-    throw Error('error during user creation')
+    console.error('User creation error:', err instanceof Error ? err.message : err)
+
+    if(err instanceof Prisma.PrismaClientKnownRequestError) {
+      if(err.code === 'P2002') {
+        return {
+          message: 'email already registered'
+        }
+      }
+    }
+    return {
+      message: 'error during user creation'
+    }
   }
 
   try {
-    await signIn('credentials', authData)
+    await signIn('credentials', {...validatedData.data, redirect: false})
+    redirect('/payment')
   } catch (err: unknown) {
-    throw Error('error during signIn after user creation')
+    console.error('User creation error:', err instanceof Error ? err.message : err)
+
+    if(err instanceof AuthError) {
+      switch(err.type) {
+        case 'CredentialsSignin': return {
+          message: 'credentials error'
+        }
+        default: return {
+          message: 'signin error'
+        }
+      }
+    }
+
+    throw err // NEXT_REDIRECT error, we have to throw it for redirects to work
+    // return {
+    //   message: 'error during user login after creation'
+    // }
   }
 }
 
@@ -40,19 +133,51 @@ export async function signOutFunc() {
   await signOut({ redirectTo: '/' })
 }
 
-export async function login(authData: FormData) {
+export async function login(prevState: unknown, authData: unknown) {
+  if(!(authData instanceof FormData)) return {
+    message: 'Invalid form data'
+  }
+
+  const data = Object.fromEntries(authData.entries()) as {
+    email: string
+    password: string
+  }
+
   try {
-    const result = await signIn('credentials', authData)
-    // console.log({result})
+    const user = await prisma.user.findUnique({
+      where: {
+        email: data.email
+      }
+    })
+    await signIn('credentials', {...data, redirect: false})
+    if(user?.hasAccess) {
+      redirect('/app/dashboard')
+    } else {
+      redirect('/payment')
+    }
   } catch (err: unknown) {
-    console.error('ERROR:', err)
+    console.error('User signinnn error:', err instanceof Error ? err.message : err)
+
+    if(err instanceof AuthError) {
+      switch(err.type) {
+        case 'CredentialsSignin': return {
+          message: 'credentials error'
+        }
+        default: return {
+          message: 'signin error'
+        }
+      }
+    }
+
+    throw err // NEXT_REDIRECT error, we have to throw it for redirects to work
+    // return {
+    //   message: 'error during user login'
+    // }
   }
 }
 
 // Pet actions
 export async function addPet(newPetData: unknown) {
-  await sleep(1000)
-
   const session = await checkAuth()
 
   const validatedPet = PetFormSchema.safeParse(newPetData)
@@ -71,6 +196,7 @@ export async function addPet(newPetData: unknown) {
             id: session.user.id,
           },
         },
+        // userId: session.user.id
       },
     })
 
@@ -83,8 +209,6 @@ export async function addPet(newPetData: unknown) {
 }
 
 export async function editPet(petId: unknown, newPetData: unknown) {
-  await sleep(1000)
-
   // auth check
   const session = await checkAuth()
 
@@ -135,8 +259,6 @@ export async function editPet(petId: unknown, newPetData: unknown) {
 }
 
 export async function checkoutPet(petId: unknown) {
-  await sleep(1000)
-
   // auth check
   const session = await checkAuth()
 

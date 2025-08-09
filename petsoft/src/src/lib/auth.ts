@@ -2,6 +2,8 @@ import NextAuth, { type NextAuthConfig } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { getUserByEmail } from './server-utils'
+import { AuthSchema } from './validations'
+import { use } from 'react'
 
 const config: NextAuthConfig = {
   pages: {
@@ -9,14 +11,20 @@ const config: NextAuthConfig = {
   },
   session: {
     strategy: 'jwt',
+    updateAge: 0,
   },
   providers: [
     Credentials({
       async authorize(credentials) {
         // runs on login
-        const { email, password } = credentials
+        console.log('AUTHORIZE FUNC!!!!!!!!')
+        // zod validation
+        const validatedData = AuthSchema.safeParse(credentials)
+        if (!validatedData.success) return null
 
-        const user = await getUserByEmail(String(email))
+        const { email, password } = validatedData.data
+
+        const user = await getUserByEmail(email)
 
         if (!user) {
           console.log('ERRORRRRR: No user found')
@@ -41,43 +49,86 @@ const config: NextAuthConfig = {
   callbacks: {
     authorized: ({ auth, request }) => {
       // runs on every request
+      console.log({ userFromAuthorized: auth?.user })
 
+      const isRoot = request.nextUrl.pathname === '/'
       const goingToAppPart = request.nextUrl.pathname.includes('/app')
-      const isLoginRoute = request.nextUrl.pathname === '/login'
+      const isLoginRoute = request.nextUrl.pathname.includes('/login')
+      const isSignupRoute = request.nextUrl.pathname.includes('/signup')
+      const isPaymentRoute = request.nextUrl.pathname === '/payment'
       const authorized = Boolean(auth?.user)
+      const hasAccess = auth?.user.hasAccess
 
+      // console.log('I RUN ON EVERY REQUEST!!!!!!!!', { authorized, hasAccess })
       // console.log({request: request.cookies.get('authjs.session-token')?.value})
       // console.log({auth})
       // console.log('url:', request.nextUrl.origin + '/login')
-      if (goingToAppPart && !authorized) {
-        return false // отправит на /login автоматически
+
+      if (isRoot) {
+        return true
       }
 
-      if (isLoginRoute && authorized) {
-        // если пользователь уже залогинен, не пускаем его на /login, редиректим в /app
-        return Response.redirect(new URL('/app/dashboard', request.nextUrl))
+      if (!authorized && (goingToAppPart || isPaymentRoute)) {
+        console.log('I AM !authorized')
+        return false
       }
 
+      if (authorized && !hasAccess && !isPaymentRoute) {
+        console.log('I AM authorized && !hasAccess → redirect to payment')
+        return Response.redirect(new URL('/payment', request.url))
+      }
+
+      if (authorized && hasAccess && (isLoginRoute || isSignupRoute)) {
+        console.log('I AM authorized && hasAccess → redirect to dashboard')
+        return Response.redirect(new URL('/app/dashboard', request.url))
+      }
+
+      console.log('I AM simple authorized redirect from auth')
       return true
     },
-    jwt: ({ token, user }) => {
+    jwt: async ({ token, user, trigger }) => {
       if (user) {
         // on sign in
         token.userId = user.id
+        token.hasAccess = user.hasAccess
       }
 
+      if (user?.email) {
+        token.email = user.email
+      }
+
+      if (trigger === 'update') {
+        console.log('JWT: Updating token due to trigger')
+        try {
+          const userUpdated = await getUserByEmail(token.email as string)
+          console.log({ userUpdated })
+          if (userUpdated) {
+            token.hasAccess = userUpdated.hasAccess
+          }
+        } catch (error) {
+          console.error('Error updating user in JWT callback:', error)
+        }
+      }
+
+      console.log({ tokenFromJWT: token, user })
       return token
     },
-    session: ({ session, token }) => {
-      if (session?.user && token?.userId) {
-        // on sign in
-        session.user.id = token.userId
-      }
+    session: async ({ session, token }) => {
+      // on sign in
+      session.user.id = token.userId
+      session.user.hasAccess = token.hasAccess
+      console.log({ sessionFromSession: session, token })
 
       return session
-    }
+    },
   },
   secret: process.env.AUTH_SECRET,
 }
 
-export const { auth, signIn, signOut } = NextAuth(config)
+export const {
+  auth,
+  signIn,
+  signOut,
+  handlers: { GET, POST },
+  update
+} = NextAuth(config)

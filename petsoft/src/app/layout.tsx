@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import '../styles/globals.css'
+import { SessionProvider } from 'next-auth/react'
 
 export const metadata: Metadata = {
   title: 'PetSoft - Pet daycare software',
@@ -16,7 +17,9 @@ export default function RootLayout({
       <body
         className='text-lg text-zinc-900 bg-bg1 min-h-screen'
       >
-        {children}
+        <SessionProvider>
+          {children}
+        </SessionProvider>
       </body>
     </html>
   )
